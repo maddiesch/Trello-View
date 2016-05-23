@@ -18,6 +18,7 @@ class ViewController: NSViewController, WKNavigationDelegate {
 
         let view = WKWebView(frame: CGRect.zero)
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.navigationDelegate = self
 
         self.view.addSubview(view)
         self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[view]|", options: [], metrics: nil, views: ["view": view]))
@@ -73,5 +74,36 @@ class ViewController: NSViewController, WKNavigationDelegate {
         let request = NSURLRequest(URL: URL)
 
         webView.loadRequest(request)
+    }
+
+    // MARK: - Nav Delegate
+    func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction, decisionHandler: (WKNavigationActionPolicy) -> Void) {
+        guard navigationAction.navigationType == .LinkActivated else {
+            decisionHandler(.Allow)
+            return
+        }
+
+        guard let url = navigationAction.request.URL else {
+            AppDelegate.playSound("Basso")
+            NSLog("No URL to open")
+            decisionHandler(.Cancel)
+            return
+        }
+
+        guard let host = url.host else {
+            decisionHandler(.Allow)
+            return
+        }
+
+        guard !host.containsString("trello.com") else {
+            decisionHandler(.Allow)
+            return
+        }
+
+        if NSWorkspace.sharedWorkspace().openURL(url) {
+            decisionHandler(.Cancel)
+        } else {
+            decisionHandler(.Allow)
+        }
     }
 }
