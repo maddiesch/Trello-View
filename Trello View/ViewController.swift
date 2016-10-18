@@ -21,15 +21,15 @@ class ViewController: NSViewController, WKNavigationDelegate {
         view.navigationDelegate = self
 
         self.view.addSubview(view)
-        self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[view]|", options: [], metrics: nil, views: ["view": view]))
-        self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|[view]|", options: [], metrics: nil, views: ["view": view]))
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[view]|", options: [], metrics: nil, views: ["view": view]))
+        self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[view]|", options: [], metrics: nil, views: ["view": view]))
         webView = view
 
         loadRoot()
         
     }
 
-    @IBAction func refreshPage(sender: AnyObject?) {
+    @IBAction func refreshPage(_ sender: AnyObject?) {
         guard let webView = webView else {
             fatalError("No web view")
         }
@@ -37,16 +37,16 @@ class ViewController: NSViewController, WKNavigationDelegate {
         webView.reload()
     }
 
-    @IBAction func goHome(sender: AnyObject?) {
+    @IBAction func goHome(_ sender: AnyObject?) {
         loadRoot()
     }
 
-    @IBAction func copyURL(sender: AnyObject?) {
+    @IBAction func copyURL(_ sender: AnyObject?) {
         guard let webView = webView else {
             fatalError("No web view")
         }
 
-        guard let url = webView.URL else {
+        guard let url = webView.url else {
             AppDelegate.playSound("Basso")
             NSLog("Failed to copy URL.  WebView returned nil for URL")
             return
@@ -54,8 +54,8 @@ class ViewController: NSViewController, WKNavigationDelegate {
 
         let content = [url]
 
-        NSPasteboard.generalPasteboard().clearContents()
-        if NSPasteboard.generalPasteboard().writeObjects(content) {
+        NSPasteboard.general().clearContents()
+        if NSPasteboard.general().writeObjects(content as [NSPasteboardWriting]) {
             AppDelegate.playSound("Glass")
         } else {
             AppDelegate.playSound("Basso")
@@ -67,43 +67,43 @@ class ViewController: NSViewController, WKNavigationDelegate {
         guard let webView = webView else {
             fatalError("No web view to load")
         }
-        guard let URL = NSURL(string: "https://trello.com") else {
+        guard let URL = URL(string: "https://trello.com") else {
             fatalError("Failed to get URL")
         }
 
-        let request = NSURLRequest(URL: URL)
+        let request = URLRequest(url: URL)
 
-        webView.loadRequest(request)
+        webView.load(request)
     }
 
     // MARK: - Nav Delegate
-    func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction, decisionHandler: (WKNavigationActionPolicy) -> Void) {
-        guard navigationAction.navigationType == .LinkActivated else {
-            decisionHandler(.Allow)
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard navigationAction.navigationType == .linkActivated else {
+            decisionHandler(.allow)
             return
         }
 
-        guard let url = navigationAction.request.URL else {
+        guard let url = navigationAction.request.url else {
             AppDelegate.playSound("Basso")
             NSLog("No URL to open")
-            decisionHandler(.Cancel)
+            decisionHandler(.cancel)
             return
         }
 
         guard let host = url.host else {
-            decisionHandler(.Allow)
+            decisionHandler(.allow)
             return
         }
 
-        guard !host.containsString("trello.com") else {
-            decisionHandler(.Allow)
+        guard !host.contains("trello.com") else {
+            decisionHandler(.allow)
             return
         }
 
-        if NSWorkspace.sharedWorkspace().openURL(url) {
-            decisionHandler(.Cancel)
+        if NSWorkspace.shared().open(url) {
+            decisionHandler(.cancel)
         } else {
-            decisionHandler(.Allow)
+            decisionHandler(.allow)
         }
     }
 }

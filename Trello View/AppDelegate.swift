@@ -16,23 +16,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var window: NSWindow!
 
 
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
-        if NSUserDefaults.standardUserDefaults().objectForKey(kPlaySounds) == nil {
-            NSUserDefaults.standardUserDefaults().setBool(true, forKey: kPlaySounds)
-            NSUserDefaults.standardUserDefaults().synchronize()
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
+        if UserDefaults.standard.object(forKey: kPlaySounds) == nil {
+            UserDefaults.standard.set(true, forKey: kPlaySounds)
+            UserDefaults.standard.synchronize()
         }
     }
 
-    func applicationWillTerminate(aNotification: NSNotification) {
+    func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(sender: NSApplication) -> Bool {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
     }
 
-    final class func playSound(name: String) -> Bool {
-        guard NSUserDefaults.standardUserDefaults().boolForKey(kPlaySounds) else {
+    @discardableResult
+    final class func playSound(_ name: String) -> Bool {
+        guard UserDefaults.standard.bool(forKey: kPlaySounds) else {
             return true
         }
 
