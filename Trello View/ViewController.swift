@@ -52,10 +52,8 @@ class ViewController: NSViewController, WKNavigationDelegate {
             return
         }
 
-        let content = [url]
-
         NSPasteboard.general().clearContents()
-        if NSPasteboard.general().writeObjects(content as [NSPasteboardWriting]) {
+        if NSPasteboard.general().setString(url.absoluteString, forType: NSPasteboardTypeString) {
             AppDelegate.playSound("Glass")
         } else {
             AppDelegate.playSound("Basso")
