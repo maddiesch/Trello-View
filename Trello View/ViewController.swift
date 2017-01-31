@@ -25,6 +25,8 @@ class ViewController: NSViewController, WKNavigationDelegate {
         self.view.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[view]|", options: [], metrics: nil, views: ["view": view]))
         webView = view
 
+        view.addObserver(self, forKeyPath: "title", options: [], context: nil)
+
         loadRoot()
         
     }
@@ -103,5 +105,14 @@ class ViewController: NSViewController, WKNavigationDelegate {
         } else {
             decisionHandler(.allow)
         }
+    }
+
+    // MARK: - Title Observing
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath! == "title" {
+            self.view.window?.title = self.webView?.title ?? NSLocalizedString("Trello View", comment: "")
+            return
+        }
+        super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
     }
 }
